@@ -29,17 +29,24 @@ def populate_parent(parent):
 
 def search(start, msgame):
     curNode = start
+    level = 0
     status = minesweeper.status(msgame.n, msgame.m, msgame.mines, curNode.data)
     while status != 1:
         if status == -1:  # if we are at a losing state, go back
             curNode = curNode.parent
+            print("Backtrack")
+            level -= 1
         else:  # if we are not at a losing state, but are not at a winning one, go down another branch
             for key in curNode.children.keys():
-                if curNode.children[key].data == None:  #if we have not expanded this node
+                if curNode.children[key].data == None:  #if we have not yet expanded this node
                     curNode.children[key].data = deepcopy(curNode.data) #fill it with data
+                    print("Move " + str(level) + ": Select tile " + str(key))
+                    level += 1
                     curNode = curNode.children[key] #set it as the current node
                     if minesweeper.reveal_tile(key[0], key[1], msgame.n, msgame.m, msgame.board, curNode.data) == 9:
                         curNode = curNode.parent #if this leads to a losing gamestate, backtrack to the parent
+                        print("Backtrack")
+                        level -= 1
                     else:
                         curNode.populate() #otherwise, populate this and continue
                     # minesweeper.print_matrix(curNode.data)
