@@ -1,6 +1,8 @@
 import minesweeper
 from copy import copy, deepcopy
 
+import time
+
 #Depth first search with backtracking
 class Node:
     def __init__(self, parent, key):
@@ -69,5 +71,7 @@ root.populate()
 #print(root.children.keys())
 
 print("Solution: ")
+start = time.time()
 minesweeper.print_matrix(search(root, game).data) #search and print the results of the search
-
+end = time.time()
+print("Execution time: " + str(end - start) + " seconds.")
