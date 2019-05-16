@@ -67,6 +67,23 @@ def reveal_tile(x, y, n, m, board, gamestate):
                         reveal_tile(i, j, n, m, board, gamestate)
     return gamestate[x][y]
 
+#return game status.
+#-1 for loss
+#0 for ongoing
+#1 for win
+def status(n, m, mines, gamestate):
+    unknownsum = 0
+    for i in range(0, n):
+        for j in range(0, m):
+            if gamestate[i][j] == 9:
+                return -1
+            elif gamestate[i][j] == '?':
+                unknownsum += 1
+    if(unknownsum == mines):
+        return 1
+    else:
+        return 0
+
 #print_matrix(generate_matrix(10, 10))
 
 
@@ -90,25 +107,10 @@ class MineSweeper:
         else: #reveal tiles
             reveal_tile(x, y, self.n, self.m, self.board, self.gamestate)
 
-    #return game status.
-    #-1 for loss
-    #0 for ongoing
-    #1 for win
-    def status(self):
-        unknownsum = 0
-        for i in range(0, self.n):
-            for j in range(0, self.m):
-                if self.gamestate[i][j] == 9:
-                    return -1
-                elif self.gamestate[i][j] == '?':
-                    unknownsum += 1
-        if(unknownsum == self.mines):
-            return 1
-        else:
-            return 0
-
+"""
 game = MineSweeper(10, 10, 10)
 #game.populate_board(4, 4)
 game.select_tile(0,0)
 print_matrix(game.board)
 print_matrix(game.gamestate)
+"""
