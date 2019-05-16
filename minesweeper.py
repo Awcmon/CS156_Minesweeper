@@ -6,12 +6,12 @@ import random
 #n and m are the dimensions of the matrix
 #mines is the number of mines
 #def generateBoard(x, y, n, m, mines):
-def generate_matrix(n, m):
+def generate_matrix(n, m, default_val):
     ret = []
     for i in range(0, n):
         ret.append([])
         for j in range(0, m):
-            ret[i].append(0)
+            ret[i].append(default_val)
     return ret
 
 
@@ -27,14 +27,14 @@ def clamp(x, minv, maxv):
 
 #returns the number of adjacent mines at a particular tile
 def sum_adj_mines(x, y, n, m, board):
-    if(board[x][y] == 9):
+    if board[x][y] == 9:
         return 9
-    sum = 0
+    ret = 0
     for i in range(clamp(x-1, 0, n-1), clamp(x+1, 0, n-1)+1):
         for j in range(clamp(y-1, 0, m-1), clamp(y+1, 0, m-1)+1):
             if board[i][j] == 9 and not (i == x and j == y): #if the square is a mine and is not the square in question
-                sum += 1
-    return sum
+                ret += 1
+    return ret
 
 #fills a board with mines
 def populate_board(x, y, n, m, mines, board):
@@ -57,6 +57,15 @@ def populate_board(x, y, n, m, mines, board):
             board[i][j] = sum_adj_mines(i, j, n, m, board)
 
 
+def reveal_tile(x, y, n, m, board, gamestate):
+    if gamestate[x][y] == '?':
+        gamestate[x][y] = board[x][y];
+        if board[x][y] == 0:
+            for i in range(clamp(x - 1, 0, n - 1), clamp(x + 1, 0, n - 1) + 1):
+                for j in range(clamp(y - 1, 0, m - 1), clamp(y + 1, 0, m - 1) + 1):
+                    if gamestate[i][j] == '?' and not (i == x and j == y):
+                        reveal_tile(i, j, n, m, board, gamestate)
+
 #print_matrix(generate_matrix(10, 10))
 
 
@@ -65,13 +74,26 @@ class MineSweeper:
         self.n = rows
         self.m = cols
         self.mines = num_mines
-        self.board = generate_matrix(self.n, self.m)
+        self.board = generate_matrix(self.n, self.m, 0)
+        self.gamestate = generate_matrix(self.n, self.m, '?')
+        self.populated = False
 
     def populate_board(self, x, y):
         populate_board(x, y, self.n, self.m, self.mines, self.board)
 
-x = MineSweeper(10, 10, 10)
-print_matrix(x.board)
-x.populate_board(4, 4)
-print_matrix(x.board)
 
+
+    def select_tile(self, x, y):
+        if not self.populated:
+            self.populate_board(x, y)
+            self.populated = True
+            reveal_tile(x, y, self.n, self.m, self.board, self.gamestate)
+        else: #reveal tiles
+            reveal_tile(x, y, self.n, self.m, self.board, self.gamestate)
+
+
+game = MineSweeper(10, 10, 10)
+#game.populate_board(4, 4)
+game.select_tile(0,0)
+print_matrix(game.board)
+print_matrix(game.gamestate)
